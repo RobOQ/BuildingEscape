@@ -1,6 +1,7 @@
 // Copyright Robert O'Quinn 2017
 
 #include "PositionReporter.h"
+#include "GameFramework/Actor.h"
 
 
 // Sets default values for this component's properties
@@ -19,8 +20,9 @@ void UPositionReporter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	FString objectName = GetOwner()->GetName();
+
+	UE_LOG(LogTemp, Warning, TEXT("Position report for %s"), *objectName);
 }
 
 
