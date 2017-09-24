@@ -74,7 +74,6 @@ Intermediate/*
 # Cache files for the editor to use
 DerivedDataCache/*
 
+# Don't store very large StarterContent files
 Content/StarterContent/*
 !Content/StarterContent/Props
-Content/StarterContent/Props/*
-!Content/StarterContent/Props/SM_Door.uasset
