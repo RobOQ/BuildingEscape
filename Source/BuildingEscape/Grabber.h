@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Components/InputComponent.h"
 
 class UPhysicsHandleComponent;
 
@@ -29,6 +30,9 @@ public:
 private:
 	// Ray-cast and grab what's in reach
 	void Grab();
+
+	// Release what we're holding
+	void Release();
 
 	// How far ahead of the player we can reach in cm
 	UPROPERTY(EditAnywhere)
