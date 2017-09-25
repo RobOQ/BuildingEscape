@@ -2,6 +2,7 @@
 
 #include "Grabber.h"
 #include "Engine/World.h"
+#include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "DrawDebugHelpers.h"
 
 #define OUT
@@ -23,6 +24,18 @@ void UGrabber::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Warning, TEXT("Grabber reporting for duty!"));
+
+	/// Look for attached Physics Handle
+	physicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+
+	if (physicsHandle)
+	{
+		/// Physics handle is found
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Could not find PhysicsHandle component on %s"), *(GetOwner()->GetName()));
+	}
 }
 
 
