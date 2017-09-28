@@ -40,6 +40,10 @@ private:
 	// Return hit for first physics body in reach
 	FHitResult GetFirstPhysicsBodyInReach() const;
 
+	FVector GetReachLineStart() const;
+
+	FVector GetReachLineEnd() const;
+
 	// How far ahead of the player we can reach in cm
 	UPROPERTY(EditAnywhere)
 	float reach = 100.0f;
