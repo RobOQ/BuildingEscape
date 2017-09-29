@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "DrawDebugHelpers.h"
+#include "Components/PrimitiveComponent.h"
 
 #define OUT
 
@@ -93,7 +94,7 @@ void UGrabber::Grab()
 	UPrimitiveComponent* componentToGrab = lineTraceHit.GetComponent();
 	AActor* actorHit = lineTraceHit.GetActor();
 
-	if (actorHit)
+	if (actorHit && physicsHandle)
 	{
 		/// If we hit something then attach a physics handle
 		physicsHandle->GrabComponent(componentToGrab, NAME_None, componentToGrab->GetOwner()->GetActorLocation(), true);
@@ -102,13 +103,21 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	physicsHandle->ReleaseComponent();
+	if (physicsHandle)
+	{
+		physicsHandle->ReleaseComponent();
+	}
 }
 
 // Called every frame
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	if (!physicsHandle)
+	{
+		return;
+	}
 
 	// If the physics handle is attached
 	if (physicsHandle->GrabbedComponent)

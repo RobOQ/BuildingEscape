@@ -23,15 +23,33 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 	owner = GetOwner();
+
+	if (!owner)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Owner of OpenDoor component not found!"));
+	}
+
+	if (!pressurePlate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Door %s does not have a pressure plate TriggerVolume assigned"), *(owner->GetName()));
+	}
 }
 
 void UOpenDoor::OpenDoor()
 {
+	if (!owner)
+	{
+		return;
+	}
 	owner->SetActorRotation(FRotator(0.0f, openAngle, 0.0f));
 }
 
 void UOpenDoor::CloseDoor()
 {
+	if (!owner)
+	{
+		return;
+	}
 	owner->SetActorRotation(FRotator(0.0f, 0.0f, 0.0f));
 }
 
@@ -54,6 +72,11 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 float UOpenDoor::GetTotalMassOfActorsOnPlate()
 {
+	if(!pressurePlate)
+	{
+		return 0.0f;
+	}
+
 	float totalMass = 0.0f;
 
 	// Find all overlapping actors
