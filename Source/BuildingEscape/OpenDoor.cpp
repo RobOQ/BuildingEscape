@@ -20,57 +20,11 @@ UOpenDoor::UOpenDoor()
 void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
-	owner = GetOwner();
-
-	if (!owner)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Owner of OpenDoor component not found!"));
-	}
-
-	if (!pressurePlate)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Door %s does not have a pressure plate TriggerVolume assigned"), *(owner->GetName()));
-	}
 }
 
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (GetTotalMassOfActorsOnPlate() > triggerMass)
-	{
-		OnOpen.Broadcast();
-	}
-	else
-	{
-		OnClose.Broadcast();
-	}
-}
-
-float UOpenDoor::GetTotalMassOfActorsOnPlate()
-{
-	if(!pressurePlate)
-	{
-		return 0.0f;
-	}
-
-	float totalMass = 0.0f;
-
-	// Find all overlapping actors
-	TArray<AActor*> overlappingActors;
-	pressurePlate->GetOverlappingActors(OUT overlappingActors);
-
-	// Iterate through them adding their masses
-	for (const auto* actor : overlappingActors)
-	{
-		UPrimitiveComponent* primitiveComp = actor->FindComponentByClass<UPrimitiveComponent>();
-		if (primitiveComp)
-		{
-			totalMass += primitiveComp->GetMass();
-		}
-	}
-
-	return totalMass;
 }
 

@@ -4,32 +4,38 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "OpenDoor.generated.h"
+#include "PressurePlate.generated.h"
 
 class ATriggerVolume;
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
+class UOpenDoor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BUILDINGESCAPE_API UOpenDoor : public UActorComponent
+class BUILDINGESCAPE_API UPressurePlate : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UOpenDoor();
+	UPressurePlate();
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	UPROPERTY(BlueprintAssignable)
-	FDoorEvent OnOpen;
-
-	UPROPERTY(BlueprintAssignable)
-	FDoorEvent OnClose;
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+private:
+	UPROPERTY(EditAnywhere)
+	ATriggerVolume* triggerVolume = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	float triggerMass = 50.0f;
+	
+	UPROPERTY(EditAnywhere)
+	AActor* doorToOpen = nullptr;
+
+	UOpenDoor* openDoorComponent = nullptr;
+
+	float GetTotalMassOfActorsOnPlate();
 };
