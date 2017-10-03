@@ -26,6 +26,11 @@ void UPressurePlate::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("Door %s does not have a pressure plate TriggerVolume assigned"), *(GetOwner()->GetName()));
 	}
+	else
+	{
+		triggerVolume->OnActorBeginOverlap.AddDynamic(this, &UPressurePlate::OnOverlap);
+		triggerVolume->OnActorEndOverlap.AddDynamic(this, &UPressurePlate::OnOverlap);
+	}
 
 	if (!doorToOpen)
 	{
@@ -42,22 +47,26 @@ void UPressurePlate::BeginPlay()
 void UPressurePlate::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
 
+
+void UPressurePlate::OnOverlap(AActor * myOverlappedActor, AActor * otherActor)
+{
 	if (!openDoorComponent)
 	{
 		return;
 	}
 
-	// TODO: This should not be in TickComponent, figure out to to hook this up to OnOverlap start/end.
 	if (GetTotalMassOfActorsOnPlate() > triggerMass)
 	{
 		openDoorComponent->OnOpen.Broadcast();
 	}
 	else
 	{
-		openDoorComponent-> OnClose.Broadcast();
+		openDoorComponent->OnClose.Broadcast();
 	}
 }
+
 
 float UPressurePlate::GetTotalMassOfActorsOnPlate()
 {

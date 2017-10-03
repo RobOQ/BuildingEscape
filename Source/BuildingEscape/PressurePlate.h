@@ -35,6 +35,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	AActor* doorToOpen = nullptr;
 
+	UFUNCTION() void OnOverlap(AActor* myOverlappedActor, AActor* otherActor);
+
 	UOpenDoor* openDoorComponent = nullptr;
 
 	float GetTotalMassOfActorsOnPlate();
