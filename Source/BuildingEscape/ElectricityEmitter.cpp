@@ -1,9 +1,11 @@
 // Copyright Robert O'Quinn 2017
 
 #include "ElectricityEmitter.h"
+#include "ElectricityConductor.h"
 #include "GameFramework/Actor.h"
 #include "Engine/TriggerSphere.h"
 
+#define OUT
 
 // Sets default values for this component's properties
 UElectricityEmitter::UElectricityEmitter()
@@ -49,7 +51,13 @@ void UElectricityEmitter::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		// Iterate through them adding their masses
 		for (const auto* actor : overlappingActors)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("ElectricityEmitter %s applying shock to %s"), *GetOwner()->GetName(), *actor->GetName());
+			UElectricityConductor* electricityConductor = actor->FindComponentByClass<UElectricityConductor>();
+
+			if (electricityConductor)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ElectricityEmitter %s applying shock to %s"), *GetOwner()->GetName(), *actor->GetName());
+				electricityConductor->ReceiveShock();
+			}
 		}
 
 		timeSinceLastShock = 0.0f;
