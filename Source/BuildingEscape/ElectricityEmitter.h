@@ -7,6 +7,7 @@
 #include "ElectricityEmitter.generated.h"
 
 class ATriggerSphere;
+class UElectricityConductor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UElectricityEmitter : public UActorComponent
@@ -29,8 +30,11 @@ private:
 	UPROPERTY(EditAnywhere)
 	ATriggerSphere* triggerSphere = nullptr;
 
-	UPROPERTY(EditAnywhere)
-	float shockDelay = 1.0f;
+	void VisitConductor(UElectricityConductor* conductor, TArray<UElectricityConductor*>& toSkip);
 
-	float timeSinceLastShock = 0.0f;
+	UFUNCTION() void OnBeginOverlap(AActor* myOverlappedActor, AActor* otherActor);
+
+	UFUNCTION() void OnEndOverlap(AActor* myOverlappedActor, AActor* otherActor);
+
+	TArray<UElectricityConductor*> connectedConductors;
 };

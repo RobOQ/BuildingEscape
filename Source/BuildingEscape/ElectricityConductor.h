@@ -20,9 +20,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void ReceiveShock();
-
-	void TransmitShock();
+	inline TArray<UElectricityConductor*> GetConnectedConductors() { return connectedConductors; }
 
 protected:
 	// Called when the game starts
@@ -32,13 +30,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	ATriggerBase* triggerZone;
 
-	UPROPERTY(EditAnywhere)
-	float transmissionDelay = 0.5f;
+	UFUNCTION() void OnBeginOverlap(AActor* myOverlappedActor, AActor* otherActor);
 
-	UPROPERTY(EditAnywhere)
-	float powerDownDelay = 1.25f;
-	
-	float timeSinceLastShock = 0.0f;
+	UFUNCTION() void OnEndOverlap(AActor* myOverlappedActor, AActor* otherActor);
 
-	float timeSinceLastTransmission = 0.0f;
+	TArray<UElectricityConductor*> connectedConductors;
 };

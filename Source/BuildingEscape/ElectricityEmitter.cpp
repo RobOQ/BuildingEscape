@@ -27,6 +27,26 @@ void UElectricityEmitter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("ElectricityEmitter %s does not have a TriggerSphere assigned"), *(GetOwner()->GetName()));
 	}
+	else
+	{
+		triggerSphere->OnActorBeginOverlap.AddDynamic(this, &UElectricityEmitter::OnBeginOverlap);
+		triggerSphere->OnActorEndOverlap.AddDynamic(this, &UElectricityEmitter::OnEndOverlap);
+
+		// Find all overlapping actors
+		TArray<AActor*> overlappingActors;
+		triggerSphere->GetOverlappingActors(OUT overlappingActors);
+		
+		// Iterate through them adding their masses
+		for (const auto* actor : overlappingActors)
+		{
+			UElectricityConductor* electricityConductor = actor->FindComponentByClass<UElectricityConductor>();
+		
+			if (electricityConductor)
+			{
+				connectedConductors.Add(electricityConductor);
+			}
+		}
+	}
 }
 
 
@@ -40,27 +60,46 @@ void UElectricityEmitter::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		return;
 	}
 
-	timeSinceLastShock += DeltaTime;
+	TArray<UElectricityConductor*> visited;
 
-	if (timeSinceLastShock > shockDelay)
+	for (auto* conductor : connectedConductors)
 	{
-		// Find all overlapping actors
-		TArray<AActor*> overlappingActors;
-		triggerSphere->GetOverlappingActors(OUT overlappingActors);
+		VisitConductor(conductor, visited);
+	}
+}
 
-		// Iterate through them adding their masses
-		for (const auto* actor : overlappingActors)
+void UElectricityEmitter::VisitConductor(UElectricityConductor* conductor, TArray<UElectricityConductor*>& toSkip)
+{
+	toSkip.Add(conductor);
+
+	UE_LOG(LogTemp, Warning, TEXT("ElectricityEmitter %s powering %s"), *GetOwner()->GetName(), *conductor->GetOwner()->GetName());
+
+	for (auto* subConductor : conductor->GetConnectedConductors())
+	{
+		if (!toSkip.Contains(subConductor))
 		{
-			UElectricityConductor* electricityConductor = actor->FindComponentByClass<UElectricityConductor>();
-
-			if (electricityConductor)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("ElectricityEmitter %s applying shock to %s"), *GetOwner()->GetName(), *actor->GetName());
-				electricityConductor->ReceiveShock();
-			}
+			VisitConductor(subConductor, toSkip);
 		}
+	}
+}
 
-		timeSinceLastShock = 0.0f;
+void UElectricityEmitter::OnBeginOverlap(AActor * myOverlappedActor, AActor * otherActor)
+{
+	UElectricityConductor* conductor = otherActor->FindComponentByClass<UElectricityConductor>();
+
+	if (conductor && !connectedConductors.Contains(conductor))
+	{
+		connectedConductors.Add(conductor);
+	}
+}
+
+void UElectricityEmitter::OnEndOverlap(AActor * myOverlappedActor, AActor * otherActor)
+{
+	UElectricityConductor* conductor = otherActor->FindComponentByClass<UElectricityConductor>();
+
+	if (conductor)
+	{
+		connectedConductors.Remove(conductor);
 	}
 }
 
