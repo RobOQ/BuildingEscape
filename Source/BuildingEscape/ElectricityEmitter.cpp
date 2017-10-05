@@ -2,6 +2,7 @@
 
 #include "ElectricityEmitter.h"
 #include "ElectricityConductor.h"
+#include "ElectricDoorOpener.h"
 #include "GameFramework/Actor.h"
 #include "Engine/TriggerSphere.h"
 
@@ -72,7 +73,12 @@ void UElectricityEmitter::VisitConductor(UElectricityConductor* conductor, TArra
 {
 	toSkip.Add(conductor);
 
-	UE_LOG(LogTemp, Warning, TEXT("ElectricityEmitter %s powering %s"), *GetOwner()->GetName(), *conductor->GetOwner()->GetName());
+	UElectricDoorOpener* doorOpener = conductor->GetOwner()->FindComponentByClass<UElectricDoorOpener>();
+
+	if (doorOpener)
+	{
+		doorOpener->ApplyPower();
+	}
 
 	for (auto* subConductor : conductor->GetConnectedConductors())
 	{

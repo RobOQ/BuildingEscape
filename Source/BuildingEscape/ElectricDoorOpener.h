@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "ElectricDoorOpener.generated.h"
 
+class UOpenDoor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UElectricDoorOpener : public UActorComponent
@@ -16,14 +17,23 @@ public:
 	// Sets default values for this component's properties
 	UElectricDoorOpener();
 
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void ApplyPower();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+private:
+	UPROPERTY(EditAnywhere)
+	AActor* doorToOpen = nullptr;
 
-		
-	
+	UPROPERTY(EditAnywhere)
+	float closeDelay = 0.5f;
+
+	UOpenDoor* openDoorComponent = nullptr;
+
+	float timeSinceLastPowered = 0.0f;
 };
