@@ -7,6 +7,8 @@
 #include "ElectricDoorOpener.generated.h"
 
 class UOpenDoor;
+class UMaterialInterface;
+class UStaticMeshComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UElectricDoorOpener : public UActorComponent
@@ -33,7 +35,15 @@ private:
 	UPROPERTY(EditAnywhere)
 	float closeDelay = 0.5f;
 
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* poweredMaterial = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	UMaterialInterface* unpoweredMaterial = nullptr;
+
 	UOpenDoor* openDoorComponent = nullptr;
+
+	UStaticMeshComponent* staticMeshComponent = nullptr;
 
 	float timeSinceLastPowered = 0.0f;
 };

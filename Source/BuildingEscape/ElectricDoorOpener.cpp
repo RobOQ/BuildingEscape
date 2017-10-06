@@ -2,6 +2,7 @@
 
 #include "ElectricDoorOpener.h"
 #include "OpenDoor.h"
+#include "Components/StaticMeshComponent.h"
 
 
 // Sets default values for this component's properties
@@ -22,11 +23,28 @@ void UElectricDoorOpener::BeginPlay()
 
 	if (!doorToOpen)
 	{
-		UE_LOG(LogTemp, Error, TEXT("Pressure plate %s does not have a door assigned to open"), *(GetOwner()->GetName()));
+		UE_LOG(LogTemp, Error, TEXT("ElectricDoorOpener %s does not have a door assigned to open"), *(GetOwner()->GetName()));
 	}
 	else
 	{
 		openDoorComponent = doorToOpen->FindComponentByClass<UOpenDoor>();
+	}
+
+	if (!poweredMaterial)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ElectricDoorOpener %s does not have a poweredMaterial"), *(GetOwner()->GetName()));
+	}
+
+	if (!unpoweredMaterial)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ElectricDoorOpener %s does not have a unpoweredMaterial"), *(GetOwner()->GetName()));
+	}
+
+	staticMeshComponent = GetOwner()->FindComponentByClass<UStaticMeshComponent>();
+
+	if (!staticMeshComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ElectricDoorOpener %s does not have a Static Mesh Component"), *(GetOwner()->GetName()));
 	}
 }
 
@@ -36,6 +54,8 @@ void UElectricDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	float prevTimeSinceLastPowered = timeSinceLastPowered;
+
 	timeSinceLastPowered += DeltaTime;
 
 	if (!openDoorComponent)
@@ -43,9 +63,14 @@ void UElectricDoorOpener::TickComponent(float DeltaTime, ELevelTick TickType, FA
 		return;
 	}
 
-	if(timeSinceLastPowered > closeDelay)
+	if(timeSinceLastPowered > closeDelay && prevTimeSinceLastPowered <= closeDelay)
 	{
 		openDoorComponent->OnClose.Broadcast();
+
+		if (staticMeshComponent && unpoweredMaterial)
+		{
+			staticMeshComponent->SetMaterial(0, unpoweredMaterial);
+		}
 	}
 }
 
@@ -59,5 +84,12 @@ void UElectricDoorOpener::ApplyPower()
 	}
 
 	openDoorComponent->OnOpen.Broadcast();
+
+	if (!staticMeshComponent || !poweredMaterial)
+	{
+		return;
+	}
+
+	staticMeshComponent->SetMaterial(0, poweredMaterial);
 }
 
