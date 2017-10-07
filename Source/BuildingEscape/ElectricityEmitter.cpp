@@ -5,6 +5,8 @@
 #include "ElectricDoorOpener.h"
 #include "GameFramework/Actor.h"
 #include "Engine/TriggerSphere.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 #define OUT
 
@@ -47,6 +49,11 @@ void UElectricityEmitter::BeginPlay()
 				connectedConductors.Add(electricityConductor);
 			}
 		}
+	}
+
+	if (!electricityParticleTemplate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ElectricityEmitter %s does not have a particle emitter template"), *(GetOwner()->GetName()));
 	}
 }
 
@@ -96,6 +103,20 @@ void UElectricityEmitter::OnBeginOverlap(AActor * myOverlappedActor, AActor * ot
 	if (conductor && !connectedConductors.Contains(conductor))
 	{
 		connectedConductors.Add(conductor);
+
+		if (electricityParticleTemplate)
+		{
+			UParticleSystemComponent* ParticleTemp;
+			ParticleTemp = UGameplayStatics::SpawnEmitterAtLocation
+			(GetOwner(),
+				electricityParticleTemplate,
+				conductor->GetOwner()->GetActorLocation(),
+				conductor->GetOwner()->GetActorRotation(),
+				false);
+
+			ParticleTemp->SetActorParameter(FName(TEXT("BeamSource")), GetOwner());
+			ParticleTemp->SetActorParameter(FName(TEXT("BeamTarget")), conductor->GetOwner());
+		}
 	}
 }
 

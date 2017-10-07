@@ -30,6 +30,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	ATriggerSphere* triggerSphere = nullptr;
 
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* electricityParticleTemplate = nullptr;
+
 	void VisitConductor(UElectricityConductor* conductor, TArray<UElectricityConductor*>& toSkip);
 
 	UFUNCTION() void OnBeginOverlap(AActor* myOverlappedActor, AActor* otherActor);
@@ -37,4 +40,6 @@ private:
 	UFUNCTION() void OnEndOverlap(AActor* myOverlappedActor, AActor* otherActor);
 
 	TArray<UElectricityConductor*> connectedConductors;
+
+	
 };
