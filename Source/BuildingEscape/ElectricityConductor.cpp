@@ -22,7 +22,7 @@ void UElectricityConductor::BeginPlay()
 
 	if (!triggerZone)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ElectricityConductor %s does not have a trigger zone assigned"), *GetOwner()->GetName());
+		UE_LOG(LogTemp, Error, TEXT("ElectricityConductor %s does not have a trigger zone assigned"), *GetOwner()->GetName());
 	}
 	else
 	{
@@ -43,6 +43,11 @@ void UElectricityConductor::BeginPlay()
 				connectedConductors.Add(electricityConductor);
 			}
 		}
+	}
+
+	if (!electricTarget)
+	{
+		UE_LOG(LogTemp, Error, TEXT("ElectricityConductor %s does not have an electric target assigned"), *GetOwner()->GetName());
 	}
 }
 
@@ -71,30 +76,4 @@ void UElectricityConductor::OnEndOverlap(AActor * myOverlappedActor, AActor * ot
 		connectedConductors.Remove(conductor);
 	}
 }
-
-//void UElectricityConductor::TransmitShock()
-//{
-//	timeSinceLastTransmission = 0.0f;
-//
-//	if (!triggerZone)
-//	{
-//		return;
-//	}
-//
-//	// Find all overlapping actors
-//	TArray<AActor*> overlappingActors;
-//	triggerZone->GetOverlappingActors(OUT overlappingActors);
-//
-//	// Iterate through them adding their masses
-//	for (const auto* actor : overlappingActors)
-//	{
-//		UElectricityConductor* electricityConductor = actor->FindComponentByClass<UElectricityConductor>();
-//
-//		if (electricityConductor)
-//		{
-//			UE_LOG(LogTemp, Warning, TEXT("ElectricityEmitter %s applying shock to %s"), *GetOwner()->GetName(), *actor->GetName());
-//			electricityConductor->ReceiveShock();
-//		}
-//	}
-//}
 

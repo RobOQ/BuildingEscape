@@ -20,7 +20,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	inline TArray<UElectricityConductor*> GetConnectedConductors() { return connectedConductors; }
+	inline TArray<UElectricityConductor*> GetConnectedConductors() const { return connectedConductors; }
+
+	inline AActor* GetElectricTarget() const { return electricTarget; }
 
 protected:
 	// Called when the game starts
@@ -28,7 +30,10 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere)
-	ATriggerBase* triggerZone;
+	ATriggerBase* triggerZone = nullptr;
+
+	UPROPERTY(EditAnywhere)
+	AActor* electricTarget = nullptr;
 
 	UFUNCTION() void OnBeginOverlap(AActor* myOverlappedActor, AActor* otherActor);
 

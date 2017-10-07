@@ -40,6 +40,4 @@ private:
 	UFUNCTION() void OnEndOverlap(AActor* myOverlappedActor, AActor* otherActor);
 
 	TArray<UElectricityConductor*> connectedConductors;
-
-	
 };
