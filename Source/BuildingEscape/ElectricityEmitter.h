@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Graph.h"
 #include "Components/ActorComponent.h"
 #include "ElectricityEmitter.generated.h"
 
@@ -17,6 +18,7 @@ class BUILDINGESCAPE_API UElectricityEmitter : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UElectricityEmitter();
+
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -37,4 +39,6 @@ private:
 	UFUNCTION() void OnEndOverlap(AActor* myOverlappedActor, AActor* otherActor);
 
 	TArray<UElectricityConductor*> connectedConductors;
+
+	Graph conductorGraph;
 };

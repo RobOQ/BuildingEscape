@@ -5,11 +5,14 @@
 #include "ElectricDoorOpener.h"
 #include "GameFramework/Actor.h"
 #include "Engine/TriggerSphere.h"
+#include "Graph.h"
+#include "Vertex.h"
 
 #define OUT
 
 // Sets default values for this component's properties
-UElectricityEmitter::UElectricityEmitter()
+UElectricityEmitter::UElectricityEmitter() :
+	conductorGraph()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
@@ -48,6 +51,8 @@ void UElectricityEmitter::BeginPlay()
 			}
 		}
 	}
+
+	conductorGraph.AddVertex(GetOwner());
 }
 
 
@@ -66,12 +71,30 @@ void UElectricityEmitter::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	for (auto* conductor : connectedConductors)
 	{
 		VisitConductor(conductor, visited);
+
+		//if (!conductorGraph.HasEdge(GetOwner(), conductor->GetOwner()))
+		//{
+		//	conductorGraph.AddEdge(GetOwner(), conductor->GetOwner());
+		//}
 	}
+
+	//for (auto* vert : conductorGraph.GetVertices())
+	//{
+	//	if (!visited.ContainsByPredicate([=](UElectricityConductor* ec) { return vert->GetActor() == ec->GetOwner(); }))
+	//	{
+	//		conductorGraph.RemoveVertex(vert->GetActor());
+	//	}
+	//}
 }
 
 void UElectricityEmitter::VisitConductor(UElectricityConductor* conductor, TArray<UElectricityConductor*>& toSkip)
 {
 	toSkip.Add(conductor);
+	
+	//if(!conductorGraph.HasVertexWithActor(conductor->GetOwner()))
+	//{
+	//	conductorGraph.AddVertex(conductor->GetOwner());
+	//}
 
 	UElectricDoorOpener* doorOpener = conductor->GetOwner()->FindComponentByClass<UElectricDoorOpener>();
 
