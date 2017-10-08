@@ -8,6 +8,7 @@
 
 class ATriggerSphere;
 class UElectricityConductor;
+class UParticleSystemComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUILDINGESCAPE_API UElectricityEmitter : public UActorComponent
@@ -35,9 +36,14 @@ private:
 
 	void VisitConductor(UElectricityConductor* conductor, TArray<UElectricityConductor*>& toSkip);
 
+	void AddBeam(UElectricityConductor* conductor);
+	void DeactivateBeam(AActor* otherActor);
+
 	UFUNCTION() void OnBeginOverlap(AActor* myOverlappedActor, AActor* otherActor);
 
 	UFUNCTION() void OnEndOverlap(AActor* myOverlappedActor, AActor* otherActor);
 
 	TArray<UElectricityConductor*> connectedConductors;
+	TArray<UParticleSystemComponent*> activeBeams;
+	TArray<UParticleSystemComponent*> inactiveBeams;
 };

@@ -45,6 +45,7 @@ void UElectricityEmitter::BeginPlay()
 			if (electricityConductor)
 			{
 				connectedConductors.Add(electricityConductor);
+				AddBeam(electricityConductor);
 			}
 		}
 	}
@@ -94,6 +95,90 @@ void UElectricityEmitter::VisitConductor(UElectricityConductor* conductor, TArra
 	}
 }
 
+void UElectricityEmitter::AddBeam(UElectricityConductor* conductor)
+{
+	if (!electricityParticleTemplate)
+	{
+		return;
+	}
+
+	UParticleSystemComponent* beam = nullptr;
+
+	if (inactiveBeams.Num() > 0)
+	{
+		beam = inactiveBeams[0];
+		beam->ActivateSystem();
+		inactiveBeams.Remove(beam);
+	}
+	else
+	{
+		beam = UGameplayStatics::SpawnEmitterAtLocation
+		(GetOwner(),
+			electricityParticleTemplate,
+			conductor->GetOwner()->GetActorLocation(),
+			conductor->GetOwner()->GetActorRotation(),
+			false);
+	}
+
+	beam->SetActorParameter(FName(TEXT("BeamSource")), GetOwner());
+	beam->SetActorParameter(FName(TEXT("BeamTarget")), conductor->GetElectricTarget());
+
+	activeBeams.Add(beam);
+}
+
+void UElectricityEmitter::DeactivateBeam(AActor* otherActor)
+{
+	AActor* targetActor = nullptr;
+	UParticleSystemComponent* beamToTurnOff = nullptr;
+
+	for (auto * beam : activeBeams)
+	{
+		if (beam->GetActorParameter(FName(TEXT("BeamTarget")), targetActor))
+		{
+			if (targetActor && targetActor->GetAttachParentActor() && targetActor->GetAttachParentActor() == otherActor)
+			{
+				beamToTurnOff = beam;
+				break;
+			}
+			else
+			{
+				if (!targetActor)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("targetActor is null"));
+				}
+				else if (!targetActor->GetAttachParentActor())
+				{
+					UE_LOG(LogTemp, Warning, TEXT("targetActor->GetParentActor() is null"));
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("BeamTarget is %s, which is not %s"), *targetActor->GetAttachParentActor()->GetName(), *otherActor->GetName());
+				}
+			}
+		}
+		else
+		{
+			continue;
+		}
+	}
+
+	if (beamToTurnOff)
+	{
+		if (targetActor && targetActor->GetAttachParentActor())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Turning off beam attached to %s"), *targetActor->GetAttachParentActor()->GetName());
+		}
+
+		beamToTurnOff->DeactivateSystem();
+		activeBeams.Remove(beamToTurnOff);
+		inactiveBeams.Add(beamToTurnOff);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Couldn't find beam to turn off"));
+	}
+}
+
 void UElectricityEmitter::OnBeginOverlap(AActor * myOverlappedActor, AActor * otherActor)
 {
 	UElectricityConductor* conductor = otherActor->FindComponentByClass<UElectricityConductor>();
@@ -102,19 +187,7 @@ void UElectricityEmitter::OnBeginOverlap(AActor * myOverlappedActor, AActor * ot
 	{
 		connectedConductors.Add(conductor);
 
-		if (electricityParticleTemplate)
-		{
-			UParticleSystemComponent* ParticleTemp;
-			ParticleTemp = UGameplayStatics::SpawnEmitterAtLocation
-			(GetOwner(),
-				electricityParticleTemplate,
-				conductor->GetOwner()->GetActorLocation(),
-				conductor->GetOwner()->GetActorRotation(),
-				false);
-
-			ParticleTemp->SetActorParameter(FName(TEXT("BeamSource")), GetOwner());
-			ParticleTemp->SetActorParameter(FName(TEXT("BeamTarget")), conductor->GetElectricTarget());
-		}
+		AddBeam(conductor);
 	}
 }
 
@@ -125,6 +198,7 @@ void UElectricityEmitter::OnEndOverlap(AActor * myOverlappedActor, AActor * othe
 	if (conductor)
 	{
 		connectedConductors.Remove(conductor);
+		DeactivateBeam(otherActor);
 	}
 }
 
